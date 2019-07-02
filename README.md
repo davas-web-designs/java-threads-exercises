@@ -12,3 +12,11 @@ _How is this achieved?_
 
 In the first example program (ThreadsBall, first commit) we practice this technique. It is demonstrated how we can launch simultaneously 3 threads represented as balls and stop them indivually. This is out first glance of what a thread is. Next we will look at thread sync.
 
+## Second way:
+
+1. Create a class that extends Thread
+2. Write the code inside the run method
+3. Start the thread
+
+We can achieve thread synchronization with the method join(). 
+In the second example, ThreadSync, we showcase this functionality of syncing threads, it tourns out to be quite interesting...
