@@ -1,3 +1,4 @@
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,25 +26,29 @@ class Bank{
         for(int i = 0; i < accounts.length; i++){
             accounts[i] = 2000;
         }
+        positiveNumbers = threadLock.newCondition();
     }
 
-    public void transfer(int from,int to, double qty){
+    public void transfer(int from,int to, double qty) throws InterruptedException{
         
         threadLock.lock();
 
         try {
-            if(accounts[from] < qty ){
+            while(accounts[from] < qty ){
                 //check if we have the money to do it
-                return;
-            }else{
-                System.out.println(Thread.currentThread());
-    
-                accounts[from] -= qty;
-                System.out.printf("%10.2f de %d para %d", qty, from, to);
-                accounts[to] += qty;
-                
-                System.out.printf("Grand total: %10.2f%n", getTotal());
+                //return;
+                positiveNumbers.await();
             }
+            System.out.println(Thread.currentThread());
+
+            accounts[from] -= qty;
+            System.out.printf("%10.2f de %d para %d", qty, from, to);
+            accounts[to] += qty;
+            
+            System.out.printf("Grand total: %10.2f%n", getTotal());
+
+            positiveNumbers.signalAll();
+
         } finally{
             threadLock.unlock();
         }
@@ -62,6 +67,8 @@ class Bank{
     private final double[] accounts;
 
     private Lock threadLock = new ReentrantLock();
+
+    private Condition positiveNumbers;
 }
 
 class exec_transfer implements Runnable{
@@ -80,7 +87,13 @@ class exec_transfer implements Runnable{
             //random quantity
             double qty = max*Math.random();
 
-            b.transfer(from, to, qty);
+            try {
+                b.transfer(from, to, qty);
+            } catch (InterruptedException e) {
+                //TODO: handle exception
+                System.out.println(e);
+            }
+            
 
             try {
                 Thread.sleep((int)(Math.random()*10));
