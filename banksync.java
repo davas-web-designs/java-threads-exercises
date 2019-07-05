@@ -1,3 +1,5 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class banksync {
     public static void main(String args[]){
@@ -27,18 +29,26 @@ class Bank{
 
     public void transfer(int from,int to, double qty){
         
-        if(accounts[from] < qty ){
-            //check if we have the money to do it
-            return;
-        }else{
-            System.out.println(Thread.currentThread());
+        threadLock.lock();
 
-            accounts[from] -= qty;
-            System.out.printf("%10.2f de %d para %d", qty, from, to);
-            accounts[to] += qty;
-            
-            System.out.printf("Grand total: %10.2f%n", getTotal());
+        try {
+            if(accounts[from] < qty ){
+                //check if we have the money to do it
+                return;
+            }else{
+                System.out.println(Thread.currentThread());
+    
+                accounts[from] -= qty;
+                System.out.printf("%10.2f de %d para %d", qty, from, to);
+                accounts[to] += qty;
+                
+                System.out.printf("Grand total: %10.2f%n", getTotal());
+            }
+        } finally{
+            threadLock.unlock();
         }
+
+        
     }
 
     public double getTotal(){
@@ -50,9 +60,12 @@ class Bank{
     }
 
     private final double[] accounts;
+
+    private Lock threadLock = new ReentrantLock();
 }
 
 class exec_transfer implements Runnable{
+
 
     public exec_transfer(Bank b, int from, double max){
         this.b = b;

@@ -25,3 +25,4 @@ In the second example, ThreadSync, we showcase this functionality of syncing thr
 
 1. We build a very simple app to make transfers between accounts. We implement this with the thread techniques we learned before...
 2. In the commit "corrupt bank" we can see that there was something else to learn as our threads are not been synched successfully leading to a problem in the total money in the bank. It is dissapearing.
+3. In the commit "I hired an accountant" we solved the previous issue by locking the code to the threads, only allowing one at a time. This is achieved with a few lines of code using the Reentrantlock class.
